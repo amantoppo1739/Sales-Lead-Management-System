@@ -22,6 +22,43 @@
 ## 🔧 Environment Configuration
 
 ### Backend `.env` Required Variables:
+
+#### For Railway/Render (Simplified):
+```env
+APP_NAME="Lead Management System"
+APP_ENV=production
+APP_KEY=(generate with: php artisan key:generate)
+APP_DEBUG=false
+APP_URL=https://your-backend.railway.app
+# OR for Render: https://your-backend.onrender.com
+
+# Database (provided by Railway/Render - check your database service)
+DB_CONNECTION=mysql
+# OR for Render: DB_CONNECTION=pgsql
+DB_HOST=(from Railway/Render database service)
+DB_PORT=(from Railway/Render - usually 3306 for MySQL, 5432 for PostgreSQL)
+DB_DATABASE=(from Railway/Render)
+DB_USERNAME=(from Railway/Render)
+DB_PASSWORD=(from Railway/Render)
+
+# Sanctum (update after you get your Vercel frontend URL)
+SANCTUM_STATEFUL_DOMAINS=your-app.vercel.app,www.your-app.vercel.app
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+
+# Cache (simplified - no Redis needed for basic setup)
+CACHE_DRIVER=file
+QUEUE_CONNECTION=database
+# Redis is optional - only add if you set up Redis service
+# CACHE_DRIVER=redis
+# QUEUE_CONNECTION=redis
+# REDIS_HOST=(from Railway/Render Redis service)
+# REDIS_PASSWORD=(if required)
+# REDIS_PORT=6379
+```
+
+#### For Traditional VPS/Server:
 ```env
 APP_NAME="Lead Management System"
 APP_ENV=production
@@ -49,24 +86,48 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 ```
 
-### Frontend `.env.local` Required Variables:
+### Frontend `.env.local` Required Variables (Vercel):
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com/api/v1
-NEXT_PUBLIC_PUSHER_APP_KEY=your_pusher_key
-NEXT_PUBLIC_PUSHER_HOST=your_pusher_host
-NEXT_PUBLIC_PUSHER_PORT=443
-NEXT_PUBLIC_PUSHER_TLS=true
-NEXT_PUBLIC_PUSHER_CLUSTER=your_cluster
+# Required
+NEXT_PUBLIC_API_BASE_URL=https://your-backend.railway.app/api/v1
+# OR for Render: https://your-backend.onrender.com/api/v1
+
+# Optional (for real-time features - can skip for basic deployment)
+# NEXT_PUBLIC_PUSHER_APP_KEY=your_pusher_key
+# NEXT_PUBLIC_PUSHER_HOST=your_pusher_host
+# NEXT_PUBLIC_PUSHER_PORT=443
+# NEXT_PUBLIC_PUSHER_TLS=true
+# NEXT_PUBLIC_PUSHER_CLUSTER=your_cluster
 ```
 
 ## 📋 Deployment Steps
 
-### Backend Deployment (Laravel)
+### Quick Start: Railway + Vercel (Recommended)
+
+1. **Deploy Backend to Railway:**
+   - Connect GitHub repo
+   - Set Root Directory: `backend`
+   - Add MySQL database service
+   - Set environment variables (see simplified list above)
+   - Get your backend URL: `https://your-app.railway.app`
+
+2. **Deploy Frontend to Vercel:**
+   - Connect GitHub repo
+   - Set Root Directory: `frontend`
+   - Add environment variable: `NEXT_PUBLIC_API_BASE_URL=https://your-app.railway.app/api/v1`
+   - Deploy!
+
+3. **Update Backend CORS:**
+   - Edit `backend/config/cors.php` with your Vercel URL
+   - Update `SANCTUM_STATEFUL_DOMAINS` with Vercel URL
+   - Redeploy backend
+
+### Backend Deployment (Laravel) - Traditional Server
 1. **Server Setup**
    - PHP 8.2+ with required extensions
    - Composer installed
    - MySQL/PostgreSQL database
-   - Redis (for cache/queues)
+   - Redis (optional - can use file/database cache)
    - Web server (Nginx/Apache)
 
 2. **Application Setup**

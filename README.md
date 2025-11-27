@@ -191,5 +191,4 @@ Built as a portfolio project demonstrating full-stack development skills.
 
 ---
 
-**Note**: This is a demonstration project. For production use, ensure proper security hardening, testing, and monitoring.
 
