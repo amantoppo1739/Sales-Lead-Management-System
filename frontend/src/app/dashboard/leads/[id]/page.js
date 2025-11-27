@@ -38,7 +38,20 @@ export default function LeadDetailPage({ params }) {
   const queryClient = useQueryClient();
   const [noteBody, setNoteBody] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState({});
+  const [editFormData, setEditFormData] = useState({
+    first_name: "",
+    last_name: "",
+    company_name: "",
+    email: "",
+    phone: "",
+    status: "new",
+    source_id: "",
+    team_id: "",
+    potential_value: "",
+    currency: "INR",
+    territory_code: "",
+    expected_close_date: "",
+  });
   const [editErrors, setEditErrors] = useState({});
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [statusComment, setStatusComment] = useState("");
@@ -104,8 +117,12 @@ export default function LeadDetailPage({ params }) {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
     },
     onError: (error) => {
+      console.error("Lead update error:", error);
       if (error.response?.status === 422) {
         setEditErrors(error.response.data?.errors || {});
+      } else {
+        // Show general error message
+        setEditErrors({ _general: [error.response?.data?.message || error.message || "Failed to update lead. Please try again."] });
       }
     },
   });
@@ -163,20 +180,56 @@ export default function LeadDetailPage({ params }) {
     e.preventDefault();
     setEditErrors({});
 
-    const payload = {
-      ...editFormData,
-      potential_value: editFormData.potential_value ? parseFloat(editFormData.potential_value) : null,
-      source_id: editFormData.source_id || null,
-      team_id: editFormData.team_id || null,
-      expected_close_date: editFormData.expected_close_date || null,
-    };
+    // Build payload with proper type conversions
+    const payload = {};
 
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] === "") {
-        payload[key] = null;
+    // String fields - send trimmed values or null
+    payload.first_name = editFormData.first_name?.trim() || null;
+    payload.last_name = editFormData.last_name?.trim() || null;
+    payload.company_name = editFormData.company_name?.trim() || null;
+    payload.email = editFormData.email?.trim() || null;
+    payload.phone = editFormData.phone?.trim() || null;
+    payload.territory_code = editFormData.territory_code?.trim() || null;
+
+    // Status - always required
+    payload.status = editFormData.status || "new";
+
+    // Currency - must be exactly 3 characters
+    payload.currency = (editFormData.currency && editFormData.currency.length === 3) ? editFormData.currency : "INR";
+
+    // Numeric fields
+    if (editFormData.potential_value && editFormData.potential_value !== "") {
+      const parsed = parseFloat(editFormData.potential_value);
+      if (!isNaN(parsed) && parsed >= 0) {
+        payload.potential_value = parsed;
+      } else {
+        payload.potential_value = null;
       }
-    });
+    } else {
+      payload.potential_value = null;
+    }
 
+    // ID fields - must be integers or null
+    if (editFormData.source_id && editFormData.source_id !== "" && editFormData.source_id !== "none") {
+      const parsed = parseInt(editFormData.source_id, 10);
+      payload.source_id = !isNaN(parsed) ? parsed : null;
+    } else {
+      payload.source_id = null;
+    }
+
+    if (editFormData.team_id && editFormData.team_id !== "" && editFormData.team_id !== "none") {
+      const parsed = parseInt(editFormData.team_id, 10);
+      payload.team_id = !isNaN(parsed) ? parsed : null;
+    } else {
+      payload.team_id = null;
+    }
+
+    // Date field
+    payload.expected_close_date = (editFormData.expected_close_date && editFormData.expected_close_date !== "") 
+      ? editFormData.expected_close_date 
+      : null;
+
+    console.log("Submitting payload:", payload);
     updateMutation.mutate(payload);
   };
 
@@ -508,12 +561,13 @@ export default function LeadDetailPage({ params }) {
                     <Label htmlFor="edit_source_id">Lead Source</Label>
                     <Select
                       value={editFormData.source_id || undefined}
-                      onValueChange={(value) => handleEditChange({ target: { name: "source_id", value } })}
+                      onValueChange={(value) => handleEditChange({ target: { name: "source_id", value: value === "none" ? "" : value } })}
                     >
                       <SelectTrigger id="edit_source_id">
                         <SelectValue placeholder="Select a source" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
                         {(referenceData?.data?.lead_sources || []).map((source) => (
                           <SelectItem key={source.id} value={String(source.id)}>
                             {source.name}
@@ -528,12 +582,13 @@ export default function LeadDetailPage({ params }) {
                   <Label htmlFor="edit_team_id">Team</Label>
                   <Select
                     value={editFormData.team_id || undefined}
-                    onValueChange={(value) => handleEditChange({ target: { name: "team_id", value } })}
+                    onValueChange={(value) => handleEditChange({ target: { name: "team_id", value: value === "none" ? "" : value } })}
                   >
                     <SelectTrigger id="edit_team_id">
                       <SelectValue placeholder="Select a team" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
                       {(referenceData?.data?.teams || []).map((team) => (
                         <SelectItem key={team.id} value={String(team.id)}>
                           {team.name}
@@ -620,14 +675,27 @@ export default function LeadDetailPage({ params }) {
             </Button>
           </div>
 
-          {updateMutation.isError && !updateMutation.error.response?.data?.errors && (
-            <Card className="border-destructive">
-              <CardContent className="pt-6">
-                <p className="text-sm text-destructive">
-                  {updateMutation.error.message || "Failed to update lead. Please try again."}
-                </p>
-              </CardContent>
-            </Card>
+          {updateMutation.isError && (
+            <>
+              {!updateMutation.error.response?.data?.errors && (
+                <Card className="border-destructive">
+                  <CardContent className="pt-6">
+                    <p className="text-sm text-destructive">
+                      {updateMutation.error.response?.data?.message || updateMutation.error.message || "Failed to update lead. Please try again."}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+              {editErrors._general && (
+                <Card className="border-destructive">
+                  <CardContent className="pt-6">
+                    <p className="text-sm text-destructive">
+                      {editErrors._general[0]}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </form>
       ) : (
