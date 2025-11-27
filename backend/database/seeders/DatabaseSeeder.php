@@ -87,12 +87,12 @@ class DatabaseSeeder extends Seeder
         $users->push($admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-            'first_name' => 'Arjun',
-            'last_name' => 'Sharma',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'team_id' => $teams[0]->id,
-            'phone' => '+91-9876543210',
+                'first_name' => 'Arjun',
+                'last_name' => 'Sharma',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'team_id' => $teams[0]->id,
+                'phone' => '+91-9876543210',
             ]
         ));
 
@@ -107,9 +107,9 @@ class DatabaseSeeder extends Seeder
                 [
                     'first_name' => \fake()->randomElement($indianFirstNames),
                     'last_name' => \fake()->randomElement($indianLastNames),
-                'password' => Hash::make('password'),
-                'role' => 'manager',
-                'team_id' => $team->id,
+                    'password' => Hash::make('password'),
+                    'role' => 'manager',
+                    'team_id' => $team->id,
                     'phone' => \fake()->numerify('+91-##########'),
                 ]
             );
@@ -132,9 +132,9 @@ class DatabaseSeeder extends Seeder
                     [
                         'first_name' => \fake()->randomElement($indianFirstNames),
                         'last_name' => \fake()->randomElement($indianLastNames),
-                    'password' => Hash::make('password'),
-                    'role' => 'sales_rep',
-                    'team_id' => $team->id,
+                        'password' => Hash::make('password'),
+                        'role' => 'sales_rep',
+                        'team_id' => $team->id,
                         'phone' => \fake()->numerify('+91-##########'),
                     ]
                 );
@@ -148,36 +148,36 @@ class DatabaseSeeder extends Seeder
         $users->push(User::firstOrCreate(
             ['email' => 'manager@example.com'],
             [
-            'first_name' => 'Priya',
-            'last_name' => 'Patel',
-            'password' => Hash::make('password'),
-            'role' => 'manager',
-            'team_id' => $teams[0]->id,
-            'phone' => '+91-9876543211',
+                'first_name' => 'Priya',
+                'last_name' => 'Patel',
+                'password' => Hash::make('password'),
+                'role' => 'manager',
+                'team_id' => $teams[0]->id,
+                'phone' => '+91-9876543211',
             ]
         ));
 
         $users->push(User::firstOrCreate(
             ['email' => 'rep.north@example.com'],
             [
-            'first_name' => 'Rahul',
-            'last_name' => 'Kumar',
-            'password' => Hash::make('password'),
-            'role' => 'sales_rep',
-            'team_id' => $teams[0]->id,
-            'phone' => '+91-9876543212',
+                'first_name' => 'Rahul',
+                'last_name' => 'Kumar',
+                'password' => Hash::make('password'),
+                'role' => 'sales_rep',
+                'team_id' => $teams[0]->id,
+                'phone' => '+91-9876543212',
             ]
         ));
 
         $users->push(User::firstOrCreate(
             ['email' => 'rep.south@example.com'],
             [
-            'first_name' => 'Ananya',
-            'last_name' => 'Reddy',
-            'password' => Hash::make('password'),
-            'role' => 'sales_rep',
-            'team_id' => $teams[1]->id,
-            'phone' => '+91-9876543213',
+                'first_name' => 'Ananya',
+                'last_name' => 'Reddy',
+                'password' => Hash::make('password'),
+                'role' => 'sales_rep',
+                'team_id' => $teams[1]->id,
+                'phone' => '+91-9876543213',
             ]
         ));
 
@@ -271,18 +271,18 @@ class DatabaseSeeder extends Seeder
 
         LeadScoringRule::firstOrCreate(
             [
-            'team_id' => $teams[0]->id,
-            'name' => 'North India Enterprise Focus',
+                'team_id' => $teams[0]->id,
+                'name' => 'North India Enterprise Focus',
             ],
             [
-            'weights' => array_replace_recursive($defaultWeights, [
-                'value' => [
-                    ['min' => 6225000, 'score' => 35], // ~75k USD in INR
-                    ['min' => 4150000, 'score' => 30], // ~50k USD in INR
-                    ['min' => 1660000, 'score' => 18], // ~20k USD in INR
-                    ['min' => 0, 'score' => 5],
-                ],
-            ]),
+                'weights' => array_replace_recursive($defaultWeights, [
+                    'value' => [
+                        ['min' => 6225000, 'score' => 35], // ~75k USD in INR
+                        ['min' => 4150000, 'score' => 30], // ~50k USD in INR
+                        ['min' => 1660000, 'score' => 18], // ~20k USD in INR
+                        ['min' => 0, 'score' => 5],
+                    ],
+                ]),
             ]
         );
     }
