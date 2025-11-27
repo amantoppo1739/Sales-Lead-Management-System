@@ -105,12 +105,12 @@ class DatabaseSeeder extends Seeder
             $manager = User::firstOrCreate(
                 ['email' => "manager.team{$team->id}@example.com"],
                 [
-                    'first_name' => fake()->randomElement($indianFirstNames),
-                    'last_name' => fake()->randomElement($indianLastNames),
+                    'first_name' => \fake()->randomElement($indianFirstNames),
+                    'last_name' => \fake()->randomElement($indianLastNames),
                     'password' => Hash::make('password'),
                     'role' => 'manager',
                     'team_id' => $team->id,
-                    'phone' => fake()->numerify('+91-##########'),
+                    'phone' => \fake()->numerify('+91-##########'),
                 ]
             );
             $team->update(['manager_id' => $manager->id]);
@@ -125,17 +125,17 @@ class DatabaseSeeder extends Seeder
         $salesReps = collect();
         $repCounter = 0;
         foreach ($teams as $teamIndex => $team) {
-            $repCount = fake()->numberBetween(3, 5);
+            $repCount = \fake()->numberBetween(3, 5);
             for ($i = 0; $i < $repCount; $i++) {
                 $rep = User::firstOrCreate(
                     ['email' => "rep.{$team->id}.{$repCounter}@example.com"],
                     [
-                        'first_name' => fake()->randomElement($indianFirstNames),
-                        'last_name' => fake()->randomElement($indianLastNames),
+                        'first_name' => \fake()->randomElement($indianFirstNames),
+                        'last_name' => \fake()->randomElement($indianLastNames),
                         'password' => Hash::make('password'),
                         'role' => 'sales_rep',
                         'team_id' => $team->id,
-                        'phone' => fake()->numerify('+91-##########'),
+                        'phone' => \fake()->numerify('+91-##########'),
                     ]
                 );
                 $users->push($rep);
@@ -303,12 +303,12 @@ class DatabaseSeeder extends Seeder
             $team = $teams->random();
             $teamReps = $salesReps->where('team_id', $team->id);
             $assignedRep = $teamReps->isNotEmpty() ? $teamReps->random() : $salesReps->random();
-            $creator = fake()->randomElement([$assignedRep, $managers->where('team_id', $team->id)->first(), $users->where('role', 'admin')->first()]);
+            $creator = \fake()->randomElement([$assignedRep, $managers->where('team_id', $team->id)->first(), $users->where('role', 'admin')->first()]);
             $source = $sources->random();
             $status = $this->weightedRandom($statusWeights);
-            $createdAt = fake()->dateTimeBetween('-6 months', 'now');
+            $createdAt = \fake()->dateTimeBetween('-6 months', 'now');
             // Potential values in INR (approximately 83,000 to 12,450,000 INR)
-            $potentialValue = fake()->randomFloat(2, 83000, 12450000);
+            $potentialValue = \fake()->randomFloat(2, 83000, 12450000);
 
             // Set dates based on status
             $lastContactedAt = null;
@@ -316,13 +316,13 @@ class DatabaseSeeder extends Seeder
             $expectedCloseDate = null;
 
             if (in_array($status, ['contacted', 'qualified', 'converted'])) {
-                $lastContactedAt = fake()->dateTimeBetween($createdAt, 'now');
+                $lastContactedAt = \fake()->dateTimeBetween($createdAt, 'now');
                 if (in_array($status, ['qualified', 'converted'])) {
-                    $nextActionAt = fake()->dateTimeBetween('now', '+30 days');
-                    $expectedCloseDate = fake()->dateTimeBetween('now', '+90 days');
+                    $nextActionAt = \fake()->dateTimeBetween('now', '+30 days');
+                    $expectedCloseDate = \fake()->dateTimeBetween('now', '+90 days');
                 }
             } elseif ($status === 'new') {
-                $nextActionAt = fake()->dateTimeBetween('now', '+7 days');
+                $nextActionAt = \fake()->dateTimeBetween('now', '+7 days');
             }
 
             // Generate Indian names
@@ -330,11 +330,11 @@ class DatabaseSeeder extends Seeder
             $indianLastNames = ['Sharma', 'Patel', 'Kumar', 'Reddy', 'Singh', 'Gupta', 'Joshi', 'Verma', 'Agarwal', 'Malhotra', 'Mehta', 'Iyer', 'Nair', 'Rao', 'Desai', 'Shah', 'Kapoor', 'Chopra', 'Bansal', 'Arora'];
             
             $lead = Lead::create([
-                'first_name' => fake()->optional(0.8)->randomElement($indianFirstNames),
-                'last_name' => fake()->optional(0.8)->randomElement($indianLastNames),
-                'company_name' => fake()->company().' '.fake()->randomElement(['Pvt Ltd', 'Ltd', 'Technologies', 'Solutions', 'Services', 'Industries']),
-                'email' => fake()->unique()->safeEmail(),
-                'phone' => fake()->optional(0.9)->numerify('+91-##########'),
+                'first_name' => \fake()->optional(0.8)->randomElement($indianFirstNames),
+                'last_name' => \fake()->optional(0.8)->randomElement($indianLastNames),
+                'company_name' => \fake()->company().' '.\fake()->randomElement(['Pvt Ltd', 'Ltd', 'Technologies', 'Solutions', 'Services', 'Industries']),
+                'email' => \fake()->unique()->safeEmail(),
+                'phone' => \fake()->optional(0.9)->numerify('+91-##########'),
                 'status' => $status,
                 'stage' => $status,
                 'team_id' => $team->id,
@@ -348,14 +348,14 @@ class DatabaseSeeder extends Seeder
                 'next_action_at' => $nextActionAt,
                 'expected_close_date' => $expectedCloseDate ? $expectedCloseDate->format('Y-m-d') : null,
                 'address' => [
-                    'street' => fake()->streetAddress(),
-                    'city' => fake()->randomElement(['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad']),
-                    'state' => fake()->randomElement(['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu', 'West Bengal', 'Gujarat', 'Rajasthan', 'Uttar Pradesh', 'Madhya Pradesh', 'Andhra Pradesh', 'Bihar', 'Punjab', 'Haryana', 'Kerala', 'Odisha', 'Assam', 'Jharkhand', 'Chhattisgarh', 'Himachal Pradesh']),
-                    'postal_code' => fake()->numerify('######'),
+                    'street' => \fake()->streetAddress(),
+                    'city' => \fake()->randomElement(['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad']),
+                    'state' => \fake()->randomElement(['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu', 'West Bengal', 'Gujarat', 'Rajasthan', 'Uttar Pradesh', 'Madhya Pradesh', 'Andhra Pradesh', 'Bihar', 'Punjab', 'Haryana', 'Kerala', 'Odisha', 'Assam', 'Jharkhand', 'Chhattisgarh', 'Himachal Pradesh']),
+                    'postal_code' => \fake()->numerify('######'),
                     'country' => 'India',
                 ],
                 'created_at' => $createdAt,
-                'updated_at' => fake()->dateTimeBetween($createdAt, 'now'),
+                'updated_at' => \fake()->dateTimeBetween($createdAt, 'now'),
             ]);
 
             // Create status history
@@ -389,19 +389,19 @@ class DatabaseSeeder extends Seeder
                         'lead_id' => $lead->id,
                         'from_status' => $transitions[$j - 1],
                         'to_status' => $transitions[$j],
-                        'changed_by_user_id' => fake()->randomElement([$assignedRep->id, $creator->id]),
-                        'comment' => fake()->sentence(),
-                        'changed_at' => fake()->dateTimeBetween($createdAt, 'now'),
+                        'changed_by_user_id' => \fake()->randomElement([$assignedRep->id, $creator->id]),
+                        'comment' => \fake()->sentence(),
+                        'changed_at' => \fake()->dateTimeBetween($createdAt, 'now'),
                     ]);
                 }
             }
 
             // Attach products (60% of leads have products)
-            if (fake()->boolean(60)) {
-                $leadProducts = $products->random(fake()->numberBetween(1, 3));
+            if (\fake()->boolean(60)) {
+                $leadProducts = $products->random(\fake()->numberBetween(1, 3));
                 foreach ($leadProducts as $product) {
                     $lead->products()->attach($product->id, [
-                        'quantity' => fake()->numberBetween(1, 5),
+                        'quantity' => \fake()->numberBetween(1, 5),
                         'price' => $product->price,
                     ]);
                 }
@@ -419,7 +419,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             // Create activities (2-5 per lead)
-            $activityCount = fake()->numberBetween(2, 5);
+            $activityCount = \fake()->numberBetween(2, 5);
             $activityActions = [
                 'lead.created',
                 'lead.status_changed',
@@ -435,28 +435,28 @@ class DatabaseSeeder extends Seeder
                 Activity::create([
                     'action' => $activityActions[array_rand($activityActions)],
                     'actor_type' => User::class,
-                    'actor_id' => fake()->randomElement([$assignedRep->id, $creator->id]),
+                    'actor_id' => \fake()->randomElement([$assignedRep->id, $creator->id]),
                     'subject_type' => Lead::class,
                     'subject_id' => $lead->id,
                     'properties' => [
-                        'summary' => fake()->sentence(),
+                        'summary' => \fake()->sentence(),
                         'status' => $status,
                     ],
-                    'occurred_at' => fake()->dateTimeBetween($createdAt, 'now'),
+                    'occurred_at' => \fake()->dateTimeBetween($createdAt, 'now'),
                 ]);
             }
 
             // Create notes (70% of leads have notes, 1-4 per lead)
-            if (fake()->boolean(70)) {
-                $noteCount = fake()->numberBetween(1, 4);
+            if (\fake()->boolean(70)) {
+                $noteCount = \fake()->numberBetween(1, 4);
                 for ($n = 0; $n < $noteCount; $n++) {
                     Note::create([
                         'notable_type' => Lead::class,
                         'notable_id' => $lead->id,
-                        'author_id' => fake()->randomElement([$assignedRep->id, $creator->id]),
-                        'body' => fake()->paragraph(),
-                        'metadata' => fake()->boolean(20) ? ['pinned' => true] : null,
-                        'created_at' => fake()->dateTimeBetween($createdAt, 'now'),
+                        'author_id' => \fake()->randomElement([$assignedRep->id, $creator->id]),
+                        'body' => \fake()->paragraph(),
+                        'metadata' => \fake()->boolean(20) ? ['pinned' => true] : null,
+                        'created_at' => \fake()->dateTimeBetween($createdAt, 'now'),
                     ]);
                 }
             }
@@ -478,9 +478,9 @@ class DatabaseSeeder extends Seeder
 
         for ($i = 0; $i < 15; $i++) {
             $status = $this->weightedRandom($statusWeights);
-            $totalRows = fake()->numberBetween(50, 5000);
-            $processedRows = $status === 'completed' ? $totalRows : fake()->numberBetween(0, $totalRows);
-            $errorRows = fake()->numberBetween(0, min(50, $totalRows - $processedRows));
+            $totalRows = \fake()->numberBetween(50, 5000);
+            $processedRows = $status === 'completed' ? $totalRows : \fake()->numberBetween(0, $totalRows);
+            $errorRows = \fake()->numberBetween(0, min(50, $totalRows - $processedRows));
 
             Import::create([
                 'type' => 'leads',
@@ -491,10 +491,10 @@ class DatabaseSeeder extends Seeder
                 'error_rows' => $errorRows,
                 'created_by_user_id' => $users->whereIn('role', ['sales_rep', 'manager', 'admin'])->random()->id,
                 'meta' => [
-                    'filename' => fake()->word().'.csv',
-                    'imported_at' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d H:i:s'),
+                    'filename' => \fake()->word().'.csv',
+                    'imported_at' => \fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d H:i:s'),
                 ],
-                'created_at' => fake()->dateTimeBetween('-3 months', 'now'),
+                'created_at' => \fake()->dateTimeBetween('-3 months', 'now'),
             ]);
         }
     }
