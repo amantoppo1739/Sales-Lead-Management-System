@@ -29,7 +29,8 @@ export default function Home() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription>Enter your credentials to access your account
+    admin@example.com, manager@example.com, rep.north@example.com | pass - password</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
